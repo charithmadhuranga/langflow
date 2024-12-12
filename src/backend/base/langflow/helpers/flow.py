@@ -33,8 +33,9 @@ def list_flows(*, user_id: str | None = None) -> list[Data]:
         raise ValueError(msg)
     try:
         with session_scope() as session:
+            uuid_user_id = UUID(user_id) if isinstance(user_id, str) else user_id
             flows = session.exec(
-                select(Flow).where(Flow.user_id == user_id).where(Flow.is_component == False)  # noqa: E712
+                select(Flow).where(Flow.user_id == uuid_user_id).where(Flow.is_component == False)  # noqa: E712
             ).all()
 
             return [flow.to_data() for flow in flows]
@@ -106,7 +107,7 @@ async def run_flow(
     inputs_components = []
     types = []
     for input_dict in inputs:
-        inputs_list.append({INPUT_FIELD_NAME: cast(str, input_dict.get("input_value"))})
+        inputs_list.append({INPUT_FIELD_NAME: cast("str", input_dict.get("input_value"))})
         inputs_components.append(input_dict.get("components", []))
         types.append(input_dict.get("type", "chat"))
 
